@@ -72,6 +72,7 @@ namespace Loupedeck.TutorialPlugin
 
         private void callback(object state)
         {
+            if (!hapticsEnabled) return;
             string newState = GetCursorState();
             if (newState != oldState && newState == "65567")
             {
@@ -128,6 +129,7 @@ namespace Loupedeck.TutorialPlugin
 
         protected override Boolean OnUnload()
         {
+            timer.Change(-1, -1);
             return true;
         }
     }
