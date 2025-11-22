@@ -1,0 +1,4 @@
+events:
+  - name: buttonPress
+    displayName: Trigger Haptic
+    description: Plays a haptic
