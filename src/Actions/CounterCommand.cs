@@ -83,7 +83,7 @@ namespace Loupedeck.TutorialPlugin
             else if (newState == "65567")
             {
                 vibrateCount += 1;
-                if (vibrateCount % 5 == 0)
+                if (vibrateCount % 4 == 0)
                 {
                     this.Plugin.PluginEvents.RaiseEvent(
                         "dampHaptic"            // Event name (must match YAML files)
@@ -93,7 +93,7 @@ namespace Loupedeck.TutorialPlugin
             else if (newState == "65543")
             {
                 vibrateCount += 1;
-                if (vibrateCount % 5 == 0)
+                if (vibrateCount % 100 == 0)
                 {
                     this.Plugin.PluginEvents.RaiseEvent(
                         "loadingHaptic"            // Event name (must match YAML files)

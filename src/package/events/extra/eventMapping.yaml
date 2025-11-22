@@ -6,5 +6,5 @@ haptics:
     DEFAULT: damp_state_change
     MX Master 4: damp_collision  # Optional: device-specific mappings
   loadingHaptic:
-    DEFAULT: jingle
-    MX Master 4: jingle  # Optional: device-specific mappings
+    DEFAULT: ringing
+    MX Master 4: ringing  # Optional: device-specific mappings
