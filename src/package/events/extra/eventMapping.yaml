@@ -2,3 +2,9 @@ haptics:
   buttonPress:
     DEFAULT: sharp_state_change
     MX Master 4: sharp_collision  # Optional: device-specific mappings
+  dampHaptic:
+    DEFAULT: damp_state_change
+    MX Master 4: damp_collision  # Optional: device-specific mappings
+  loadingHaptic:
+    DEFAULT: jingle
+    MX Master 4: jingle  # Optional: device-specific mappings

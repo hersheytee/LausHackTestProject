@@ -2,3 +2,9 @@ events:
   - name: buttonPress
     displayName: Trigger Haptic
     description: Plays a haptic
+  - name: dampHaptic
+    displayName: Trigger Haptic Damp
+    description: Plays a haptic Damp
+  - name: loadingHaptic
+    displayName: Trigger Haptic Loading
+    description: Plays a haptic Loading
