@@ -2,6 +2,8 @@ namespace Loupedeck.TutorialPlugin
 {
     using System;
     using System.Runtime.InteropServices;
+    using System.Net;
+    using System.Net.Sockets;
 
 
     // This class implements an example command that counts button presses.
@@ -104,6 +106,8 @@ namespace Loupedeck.TutorialPlugin
             oldState = newState;
         }
 
+        private UdpClient udpServer;
+
         protected override Boolean OnLoad()
         {
             this.Plugin.PluginEvents.AddEvent(
@@ -124,11 +128,50 @@ namespace Loupedeck.TutorialPlugin
                 "Plays a haptic"         // Description
             );
 
+            // Start the UDP Listener on a background thread
+            Task.Run(() => StartUdpListener());
+
             return true;
+        }
+
+        private void StartUdpListener()
+        {
+            try
+            {
+                udpServer = new UdpClient(11000);
+                var remoteEP = new IPEndPoint(IPAddress.Any, 11000);
+
+                while (true)
+                {
+                    var data = udpServer.Receive(ref remoteEP);
+                    var message = System.Text.Encoding.UTF8.GetString(data);
+
+                    if (message == "VIBE")
+                    {
+                        // AUDIBLE DEBUG: Beep so you know the packet arrived
+                        // (This helps separate "Network Issues" from "Haptic Issues")
+                        Console.Beep(1000, 200);
+
+                        // CONTINUOUS VIBE: Fire the event 20 times rapidly
+                        for (int i = 0; i < 20; i++)
+                        {
+                            this.Plugin.PluginEvents.RaiseEvent("buttonPress");
+
+                            // Wait 50ms between vibes (creating a buzzing effect)
+                            System.Threading.Thread.Sleep(50);
+                        }
+                    }
+                }
+            }
+            catch
+            {
+                // Log error if needed
+            }
         }
 
         protected override Boolean OnUnload()
         {
+            udpServer?.Close();
             timer.Change(-1, -1);
             return true;
         }
