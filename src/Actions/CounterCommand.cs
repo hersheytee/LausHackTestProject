@@ -16,6 +16,8 @@ namespace Loupedeck.TutorialPlugin
         private Timer timer;
 
         private int vibrateCount = 0;
+        private int currentDelay = -1; // -1 means "Stop"
+        private bool isOnTarget = false;
 
         // Initializes the command class.
         public CounterCommand()
@@ -108,6 +110,32 @@ namespace Loupedeck.TutorialPlugin
 
         private UdpClient udpServer;
 
+        private void HapticHeartbeat()
+        {
+            while (true)
+            {
+                if (isOnTarget)
+                {
+                    // TARGET HIT: Constant Buzz (Oscillate)
+                    // Ensure "loadingHaptic" is mapped to Logi_Oscillate in plugin.json
+                    this.Plugin.PluginEvents.RaiseEvent("loadingHaptic");
+                    System.Threading.Thread.Sleep(150); // Buzz duration
+                }
+                else if (currentDelay > 0)
+                {
+                    // PROXIMITY: Tick-Tick-Tick
+                    // Ensure "buttonPress" is mapped to Logi_Tick
+                    this.Plugin.PluginEvents.RaiseEvent("buttonPress");
+                    System.Threading.Thread.Sleep(currentDelay);
+                }
+                else
+                {
+                    // IDLE: Just wait a bit to save CPU
+                    System.Threading.Thread.Sleep(100);
+                }
+            }
+        }
+
         protected override Boolean OnLoad()
         {
             this.Plugin.PluginEvents.AddEvent(
@@ -130,6 +158,9 @@ namespace Loupedeck.TutorialPlugin
 
             // Start the UDP Listener on a background thread
             Task.Run(() => StartUdpListener());
+
+            // heartbeat for code debugging
+            Task.Run(() => HapticHeartbeat());
 
             return true;
         }
@@ -160,6 +191,30 @@ namespace Loupedeck.TutorialPlugin
                             // Wait 50ms between vibes (creating a buzzing effect)
                             System.Threading.Thread.Sleep(50);
                         }
+                    }
+
+                    if (message.StartsWith("DIST:"))
+                    {
+                        // Parse the distance number
+                        int distance = int.Parse(message.Split(':')[1]);
+
+                        if (distance == 0)
+                        {
+                            isOnTarget = true;
+                            currentDelay = -1;
+                        }
+                        else
+                        {
+                            isOnTarget = false;
+                            // FORMULA: Closer = Faster. 
+                            // Dist 1 = 100ms delay. Dist 10 = 800ms delay.
+                            currentDelay = Math.Max(50, distance * 80);
+                        }
+                    }
+                    else if (message == "CLEAR")
+                    {
+                        isOnTarget = false;
+                        currentDelay = -1; // Stop everything
                     }
                 }
             }
